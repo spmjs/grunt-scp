@@ -3,12 +3,13 @@
 > Copy files to remote server
 
 ## Getting Started
+
 This plugin requires Grunt `~0.4.0`
 
 If you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide, as it explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with that process, you may install this plugin with this command:
 
 ```shell
-npm install grunt-scp --save-dev
+npm install grunt-scp
 ```
 
 One the plugin has been installed, it may be enabled inside your Gruntfile with this line of JavaScript:
@@ -20,16 +21,26 @@ grunt.loadNpmTasks('grunt-scp');
 ## The "scp" task
 
 ### Overview
+
 In your project's Gruntfile, add a section named `scp` to the data object passed into `grunt.initConfig()`.
 
 ```js
 grunt.initConfig({
+  pkg: grunt.file.readJSON('package.json'),
+
   scp: {
     options: {
-      // Task-specific options go here.
+        host: 'localhost',
+        username: 'username',
+        password: 'password'
     },
     your_target: {
-      // Target-specific file lists and/or options go here.
+        files: [{
+            cwd: 'directory',
+            src: '**/*',
+            // path on the server
+            dest: '/home/username/static/<%= pkg.name %>/<%= pkg.version %>'
+        }]
     },
   },
 })
@@ -37,53 +48,27 @@ grunt.initConfig({
 
 ### Options
 
-#### options.separator
+
+#### options.host
 Type: `String`
-Default value: `',  '`
+Default value: `localhost`
 
-A string value that is used to do something with whatever.
+A string value that is the host of the server.
 
-#### options.punctuation
+#### options.port
+Type: `Number`
+Default value: `22`
+
+The ssh port of the server.
+
+
+#### options.username
 Type: `String`
-Default value: `'.'`
 
-A string value that is used to do something else with whatever else.
+The username of the server.
 
-### Usage Examples
 
-#### Default Options
-In this example, the default options are used to do something with whatever. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result would be `Testing, 1 2 3.`
+#### options.password
+Type: `String`
 
-```js
-grunt.initConfig({
-  scp: {
-    options: {},
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
-  },
-})
-```
-
-#### Custom Options
-In this example, custom options are used to do something else with whatever else. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result in this case would be `Testing: 1 2 3 !!!`
-
-```js
-grunt.initConfig({
-  scp: {
-    options: {
-      separator: ': ',
-      punctuation: ' !!!',
-    },
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
-  },
-})
-```
-
-## Contributing
-In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
-
-## Release History
-_(Nothing yet)_
+The password of the user on the remote server.
