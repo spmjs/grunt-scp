@@ -15,8 +15,8 @@ module.exports = function(grunt) {
       tasks: {
         options: {
           username: 'admin',
-          password: 'alipay',
-          host: 'arale.alipay.im'
+          password: 'admin',
+          host: 'example.com'
         },
         files: [{
           cwd: 'tasks',
