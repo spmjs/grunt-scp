@@ -6,45 +6,59 @@
  * Licensed under the MIT license.
  */
 
-'use strict';
+var path = require('path');
+var async = require('async');
+var Client = require('scp2').Client;
 
 module.exports = function(grunt) {
 
-  // Please see the Grunt documentation for more information regarding task
-  // creation: http://gruntjs.com/creating-tasks
-
-  grunt.registerMultiTask('scp', 'Your task description goes here.', function() {
-    // Merge task-specific and/or target-specific options with these defaults.
+  grunt.registerMultiTask('scp', 'copy files to remote server.', function() {
     var options = this.options({
-      punctuation: '.',
-      separator: ', '
+      host: 'localhost',
+      username: 'lepture',
+      password: '123'
     });
 
-    // Iterate over all specified file groups.
-    this.files.forEach(function(f) {
-      // Concat specified files.
-      var src = f.src.filter(function(filepath) {
-        // Warn on and remove invalid source files (if nonull was set).
-        if (!grunt.file.exists(filepath)) {
-          grunt.log.warn('Source file "' + filepath + '" not found.');
-          return false;
+    var done = this.async();
+    var filename, destfile;
+    var client = new Client(options);
+
+    client.on('connect', function() {
+      grunt.log.writeln('ssh connect ' + options.host);
+    });
+    client.on('close', function() {
+      grunt.log.writeln('ssh close ' + options.host);
+    });
+    client.on('mkdir', function(dir) {
+      grunt.log.writeln('mkdir ' + dir);
+    });
+    client.on('write', function(o) {
+      grunt.log.writeln('write ' + o.destination);
+    });
+
+    async.each(this.files, function(fileObj, cb) {
+      upload(fileObj, cb)
+    }, function(err) {
+      client.close();
+      if (err) {
+        grunt.log.error('Error ' + err);
+      }
+      done();
+    });
+
+    function upload(fileObj, cb) {
+      async.each(fileObj.src, function(filepath, cb) {
+        if (fileObj.cwd) {
+          filename = filepath;
+          filepath = path.join(fileObj.cwd, filepath);
         } else {
-          return true;
+          filename = path.relative(fileObj.orig.cwd, filepath);
         }
-      }).map(function(filepath) {
-        // Read file source.
-        return grunt.file.read(filepath);
-      }).join(grunt.util.normalizelf(options.separator));
-
-      // Handle options.
-      src += options.punctuation;
-
-      // Write the destination file.
-      grunt.file.write(f.dest, src);
-
-      // Print a success message.
-      grunt.log.writeln('File "' + f.dest + '" created.');
-    });
+        destfile = path.join(fileObj.dest, filename);
+        client.upload(filepath, destfile, cb)
+      }, function(err) {
+        cb(err);
+      });
+    }
   });
-
 };
