@@ -37,7 +37,7 @@ module.exports = function(grunt) {
       grunt.log.writeln('write ' + o.destination);
     });
 
-    async.each(this.files, function(fileObj, cb) {
+    async.eachSeries(this.files, function(fileObj, cb) {
       upload(fileObj, cb)
     }, function(err) {
       if (err) {
@@ -47,7 +47,7 @@ module.exports = function(grunt) {
     });
 
     function upload(fileObj, cb) {
-      async.each(fileObj.src, function(filepath, cb) {
+      async.eachSeries(fileObj.src, function(filepath, cb) {
         if (fileObj.cwd) {
           filename = filepath;
           filepath = path.join(fileObj.cwd, filepath);
