@@ -28,6 +28,7 @@ module.exports = function(grunt) {
     });
     client.on('close', function() {
       grunt.log.writeln('ssh close ' + options.host);
+      done();
     });
     client.on('mkdir', function(dir) {
       grunt.log.writeln('mkdir ' + dir);
@@ -39,11 +40,10 @@ module.exports = function(grunt) {
     async.each(this.files, function(fileObj, cb) {
       upload(fileObj, cb)
     }, function(err) {
-      client.close();
       if (err) {
         grunt.log.error('Error ' + err);
       }
-      done();
+      client.close();
     });
 
     function upload(fileObj, cb) {
