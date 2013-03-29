@@ -36,6 +36,15 @@ module.exports = function(grunt) {
     client.on('write', function(o) {
       grunt.log.writeln('write ' + o.destination);
     });
+    client.on('error', function(err) {
+      if (err.message) {
+        grunt.log.error('error ' + err.message);
+      } else {
+        grunt.log.error('error ' + err);
+      }
+      done(false);
+      return false;
+    });
 
     async.eachSeries(this.files, function(fileObj, cb) {
       upload(fileObj, cb)
