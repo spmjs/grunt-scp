@@ -72,3 +72,14 @@ The username of the server.
 Type: `String`
 
 The password of the user on the remote server.
+
+
+## Changelog
+
+**2013-03-29** `0.1.1`
+
+Add client.on('error') handler.
+
+**2013-03-08** `0.1.0`
+
+First version.
