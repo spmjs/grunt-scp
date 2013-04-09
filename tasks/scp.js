@@ -35,6 +35,9 @@ module.exports = function(grunt) {
     });
     client.on('write', function(o) {
       grunt.log.writeln('write ' + o.destination);
+      if (options.log) {
+        options.log(o);
+      }
     });
     client.on('error', function(err) {
       if (err.message) {

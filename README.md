@@ -73,8 +73,15 @@ Type: `String`
 
 The password of the user on the remote server.
 
+#### options.log
+Type: `Function`
+
 
 ## Changelog
+
+**2013-04-09** `0.1.2`
+
+Add options.log.
 
 **2013-03-29** `0.1.1`
 
