@@ -38,6 +38,7 @@ grunt.initConfig({
         files: [{
             cwd: 'directory',
             src: '**/*',
+            filter: 'isFile',
             // path on the server
             dest: '/home/username/static/<%= pkg.name %>/<%= pkg.version %>'
         }]
@@ -78,6 +79,10 @@ Type: `Function`
 
 
 ## Changelog
+
+**2013-04-09** `0.1.3`
+
+Add a config file to make things easier.
 
 **2013-04-09** `0.1.2`
 
