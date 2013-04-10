@@ -7,28 +7,15 @@
  */
 
 module.exports = function(grunt) {
+  var self = require('./');
 
-  grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
-
-    scp: {
-      tasks: {
-        options: {
-          username: 'admin',
-          password: 'admin',
-          host: 'example.com'
-        },
-        files: [{
-          cwd: 'tasks',
-          src: '**/*',
-          dest: '/home/admin/static/<%= pkg.name %>/<%= pkg.version %>'
-        }]
-      },
-    }
-  });
-
-  // Actually load this plugin's task(s).
-  grunt.loadTasks('tasks');
+  self.initConfig(grunt, {
+    username: 'admin',
+    password: 'alipay',
+    host: 'arale.alipay.im',
+    src: 'tasks',
+    dest: '/home/admin/tmp/'
+  }, true);
 
   grunt.registerTask('default', ['scp']);
 };
