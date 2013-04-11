@@ -74,9 +74,25 @@ Type: `String`
 
 The password of the user on the remote server.
 
+
 #### options.log
 Type: `Function`
 
+
+### More Options
+
+- host
+- port
+- hostHash
+- hostVerifier
+- username
+- password
+- agent
+- privateKey
+- passphrase
+- publicKey
+
+Read more: https://github.com/mscdex/ssh2#connection-methods
 
 ## Changelog
 
