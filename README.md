@@ -96,6 +96,10 @@ Read more: https://github.com/mscdex/ssh2#connection-methods
 
 ## Changelog
 
+**2013-06-01** `0.1.4`
+
+Fix on default options.
+
 **2013-04-09** `0.1.3`
 
 Add a config file to make things easier.
