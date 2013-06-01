@@ -15,8 +15,7 @@ module.exports = function(grunt) {
   grunt.registerMultiTask('scp', 'copy files to remote server.', function() {
     var options = this.options({
       host: 'localhost',
-      username: 'lepture',
-      password: '123'
+      username: 'admin'
     });
 
     var done = this.async();
