@@ -38,6 +38,14 @@ module.exports = function(grunt) {
         options.log(o);
       }
     });
+    client.on('transfer', function(buf, up, total) {
+      up = up + 1;
+      if (up < total) {
+        grunt.log.write('transfer ' + up + '/' + total + ' data\r');
+      } else {
+        grunt.log.writeln('transfer ' + up + '/' + total + ' data');
+      }
+    });
     client.on('error', function(err) {
       if (err.message) {
         grunt.log.error('error ' + err.message);

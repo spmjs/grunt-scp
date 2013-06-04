@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "async": "~0.2.6",
-    "scp2": "~0.1.0"
+    "scp2": "~0.1.2"
   },
   "keywords": [
     "gruntplugin"
