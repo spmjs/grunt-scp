@@ -57,7 +57,7 @@ module.exports = function(grunt) {
     });
 
     async.eachSeries(this.files, function(fileObj, cb) {
-      upload(fileObj, cb)
+      upload(fileObj, cb);
     }, function(err) {
       if (err) {
         grunt.log.error('Error ' + err);
@@ -74,7 +74,7 @@ module.exports = function(grunt) {
           filename = path.relative(fileObj.orig.cwd, filepath);
         }
         destfile = path.join(fileObj.dest, filename);
-        client.upload(filepath, destfile, cb)
+        client.upload(filepath, destfile, cb);
       }, function(err) {
         cb(err);
       });
