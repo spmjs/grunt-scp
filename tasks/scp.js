@@ -9,6 +9,7 @@
 var path = require('path');
 var async = require('async');
 var Client = require('scp2').Client;
+var inquirer = require('inquirer');
 
 module.exports = function(grunt) {
 
@@ -21,6 +22,7 @@ module.exports = function(grunt) {
     var done = this.async();
     var filename, destfile;
     var client = new Client(options);
+    var files = this.files;
 
     client.on('connect', function() {
       grunt.log.writeln('ssh connect ' + options.host);
@@ -56,14 +58,16 @@ module.exports = function(grunt) {
       return false;
     });
 
-    async.eachSeries(this.files, function(fileObj, cb) {
-      upload(fileObj, cb);
-    }, function(err) {
-      if (err) {
-        grunt.log.error('Error ' + err);
-      }
-      client.close();
-    });
+    function execUploads() {
+      async.eachSeries(files, function(fileObj, cb) {
+        upload(fileObj, cb);
+      }, function(err) {
+        if (err) {
+          grunt.log.error('Error ' + err);
+        }
+        client.close();
+      });
+    }
 
     function upload(fileObj, cb) {
       async.eachSeries(fileObj.src, function(filepath, cb) {
@@ -78,6 +82,21 @@ module.exports = function(grunt) {
       }, function(err) {
         cb(err);
       });
+    }
+
+    if (options.password === true) {
+      inquirer.prompt([{
+        name: 'password',
+        message: 'password: ',
+        type: 'password'
+      }], function(answers) {
+        options.password = answers.password;
+        client.defaults(options);
+        execUploads();
+      });
+    }
+    else {
+      execUploads();  
     }
   });
 };
