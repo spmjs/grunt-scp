@@ -1,7 +1,7 @@
 {
   "name": "grunt-scp",
   "description": "Copy files to remote server",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "homepage": "https://github.com/spmjs/grunt-scp",
   "author": {
     "name": "Hsiaoming Yang",
