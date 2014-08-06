@@ -84,16 +84,38 @@ module.exports = function(grunt) {
       });
     }
 
-    if (options.password === true) {
-      inquirer.prompt([{
-        name: 'password',
-        message: 'password: ',
-        type: 'password'
-      }], function(answers) {
-        options.password = answers.password;
-        client.defaults(options);
-        execUploads();
-      });
+    if (options.password === true || options.username === true) {
+        var questions = [];
+        
+        if (options.password === true) {
+            questions.push({
+                name: 'password',
+                message: 'password: ',
+                type: 'password'
+            });
+        }
+        
+        if (options.username === true) {
+            questions.push({
+                name: 'username',
+                message: 'username: ',
+                type: 'input'
+            });
+        }
+        
+        inquirer.prompt(questions, function(answers) {
+            if (answers.password) {
+                options.password = answers.password;
+            }
+
+            if (answers.username) {
+                options.username = answers.username;
+            }
+            console.dir(answers);
+
+            client.defaults(options);
+            execUploads();
+        });
     }
     else {
       execUploads();  
