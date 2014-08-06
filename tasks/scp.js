@@ -111,7 +111,6 @@ module.exports = function(grunt) {
             if (answers.username) {
                 options.username = answers.username;
             }
-            console.dir(answers);
 
             client.defaults(options);
             execUploads();
