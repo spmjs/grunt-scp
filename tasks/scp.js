@@ -27,6 +27,9 @@ module.exports = function(grunt) {
     client.on('connect', function() {
       grunt.log.writeln('ssh connect ' + options.host);
     });
+    client.on('keyboard-interactive', function(name, instructions, instructionsLang, prompts, finish) {
+      finish([options.password]);
+    });    
     client.on('close', function() {
       grunt.log.writeln('ssh close ' + options.host);
       done();
