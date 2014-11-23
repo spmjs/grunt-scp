@@ -87,7 +87,9 @@ module.exports = function(grunt) {
       });
     }
 
-    if (options.password === true) {
+    if (options.password) {
+      execUploads();
+    } else {
       inquirer.prompt([{
         name: 'password',
         message: 'password: ',
@@ -98,8 +100,6 @@ module.exports = function(grunt) {
         execUploads();
       });
     }
-    else {
-      execUploads();  
-    }
+
   });
 };
