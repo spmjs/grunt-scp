@@ -87,7 +87,7 @@ module.exports = function(grunt) {
       });
     }
 
-    if (options.password) {
+    if (options.password || options.privateKey) {
       execUploads();
     } else {
       inquirer.prompt([{
