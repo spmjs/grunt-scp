@@ -46,9 +46,13 @@ module.exports = function(grunt) {
     client.on('transfer', function(buf, up, total) {
       up = up + 1;
       if (up < total) {
-        grunt.log.write('transfer ' + up + '/' + total + ' data\r');
+        if ((Math.floor(up / 550)) === (up / 550)) {
+          grunt.log.writeln('transfer ' + Math.floor(up / total * 100) + '% data');
+        } else if (up === 1) {
+          grunt.log.writeln('transfer 1% data');
+        }
       } else {
-        grunt.log.writeln('transfer ' + up + '/' + total + ' data');
+        grunt.log.writeln('transfer ' + Math.floor(up / total * 100) + '% data');
       }
     });
     client.on('error', function(err) {
