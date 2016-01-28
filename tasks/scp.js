@@ -6,6 +6,8 @@
  * Licensed under the MIT license.
  */
 
+ /* jshint node: true */
+
 var path = require('path');
 var async = require('async');
 var Client = require('scp2').Client;
@@ -16,7 +18,7 @@ module.exports = function(grunt) {
   grunt.registerMultiTask('scp', 'copy files to remote server.', function() {
     var options = this.options({
       host: 'localhost',
-      username: 'admin'
+      tryKeyboard: true
     });
 
     var done = this.async();
@@ -29,7 +31,7 @@ module.exports = function(grunt) {
     });
     client.on('keyboard-interactive', function(name, instructions, instructionsLang, prompts, finish) {
       finish([options.password]);
-    });    
+    });
     client.on('close', function() {
       grunt.log.writeln('ssh close ' + options.host);
       done();

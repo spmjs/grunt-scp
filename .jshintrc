@@ -12,7 +12,7 @@
   "boss": true,
   "expr": true,
   "strict": false,
-  "es5": true,
+  "es5": false,
   "funcscope": true,
   "loopfunc": true,
   "multistr": true,
