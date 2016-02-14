@@ -7,16 +7,7 @@
  */
 
 module.exports = function(grunt) {
-  var self = require('./');
-
-  self.initConfig(grunt, {
-    username: process.env.USER,
-    host: 'localhost',
-    src: 'test/data/',
-    dest: process.cwd() + '/test/tmp/'
-  }, true);
-
-  grunt.config.merge({
+  grunt.initConfig({
     jshint: {
       all: [
         'Gruntfile.js',
@@ -30,7 +21,22 @@ module.exports = function(grunt) {
 
     // Before generating any new files, remove any previously-created files.
     clean: {
-      tests: ['test/tmp']
+      tests: ['test/expected']
+    },
+
+    scp: {
+      options: {
+        username: process.env.USER,
+        host: 'localhost',
+      },
+      assets: {
+        files: [{
+          cwd: 'test/fixtures/',
+          src: '**',
+          filter: 'isFile',
+          dest: process.cwd() + '/test/tmp/'
+        }]
+      },
     },
 
     // Unit tests.
