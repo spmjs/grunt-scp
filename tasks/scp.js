@@ -93,7 +93,7 @@ module.exports = function(grunt) {
       });
     }
 
-    if (options.password || options.privateKey) {
+    if (options.password || options.privateKey || options.agent) {
       execUploads();
     } else {
       inquirer.prompt([{
