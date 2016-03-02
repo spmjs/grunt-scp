@@ -23,6 +23,9 @@ module.exports = function(grunt) {
       tryKeyboard: true
     });
 
+    var ARG_NEWER = 'newer';
+    var ARG_CLEAN = 'clean';
+
     var done = this.async();
     var filename, destfile;
     var client = new Client(options);
@@ -30,10 +33,46 @@ module.exports = function(grunt) {
     var uploadedFiles = 0;
     var skippedFiles = 0;
 
-    var cacheDir = path.join(__dirname, '..', '.cache');
-    var cacheFile = path.join(cacheDir, this.nameArgs.replace(/:/g, '.') + '.json');
-    var cache = initCache();
+    var cache = new (function (name, args) {
 
+      var newer = args.indexOf(ARG_NEWER) !== -1;
+      var clean = args.indexOf(ARG_CLEAN) !== -1;
+
+      this.dir = path.join(__dirname, '..', '.cache');
+      this.file = path.join(this.dir, (name || 'scp') + '.json');
+      this.data = {};
+
+       this.isUpToDate = function (filepath) {
+        stats = fs.statSync(filepath);
+        if (!clean && newer && (this.data.hasOwnProperty(filepath) && this.data[filepath] === stats.ctime.toJSON())) {
+          return true;
+        }
+        this.data[filepath] = stats.ctime;
+        return false;
+      };
+
+      this.store = function () {
+        if (!clean) {
+          grunt.file.write(this.file, JSON.stringify(this.data));
+        }
+      };
+
+      this.clean = function () {
+        if (grunt.file.exists(this.file)) {
+          grunt.file.delete(this.file);
+        }
+      };
+
+      /** CONSTRUCTOR **/
+      if (clean) {
+        this.clean();
+      }
+      if (!grunt.file.exists(this.dir)) {
+        fs.mkdir(this.dir);
+      }
+      this.data = grunt.file.exists(this.file) ? grunt.file.readJSON(this.file) : {};
+
+    })(this.target, this.args);
 
     client.on('connect', function() {
       grunt.verbose.writeln('ssh connect ' + options.host);
@@ -77,35 +116,7 @@ module.exports = function(grunt) {
       return false;
     });
 
-    function initCache () {
-      if (!options.newer) {
-        return false;
-      }
-      if (!grunt.file.exists(cacheDir)) {
-        fs.mkdir(cacheDir);
-      }
-      return grunt.file.exists(cacheFile) ? grunt.file.readJSON(cacheFile) : {};
-    }
-    function shouldUpload (filepath) {
-      if (!options.newer) {
-        return true;
-      }
-      stats = fs.statSync(filepath);
-      if (cache.hasOwnProperty(filepath) && cache[filepath] === stats.ctime.toJSON()) {
-        return false;
-      }
-      cache[filepath] = stats.ctime;
-      return true;
-    }
-    function storeCache () {
-      if (!options.newer) {
-        return;
-      }
-      grunt.file.write(cacheFile, JSON.stringify(cache));
-    }
-
     function execUploads() {
-      initCache();
       async.eachSeries(files, function(fileObj, cb) {
         upload(fileObj, cb);
       }, function(err) {
@@ -115,7 +126,7 @@ module.exports = function(grunt) {
         grunt.log.writeln((uploadedFiles > 0 ? "\n" : "")
             + "Uploaded " + chalk.cyan(uploadedFiles) + " " + (uploadedFiles !== 1 ? "files" : "file")
             + " skipped " + chalk.cyan(skippedFiles) + " " + (skippedFiles !== 1 ? "files" : "file"));
-        storeCache();
+        cache.store();
         client.close();
       });
     }
@@ -128,7 +139,7 @@ module.exports = function(grunt) {
         } else {
           filename = path.relative(fileObj.orig.cwd, filepath);
         }
-        if (shouldUpload(filepath)) {     
+        if (!cache.isUpToDate(filepath)) {     
           destfile = path.join(fileObj.dest, filename);
           client.upload(filepath, destfile, cb);
         } else {

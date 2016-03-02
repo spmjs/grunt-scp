@@ -94,6 +94,35 @@ Type: `Function`
 
 Read more: https://github.com/mscdex/ssh2#connection-methods
 
+### Task arguments
+
+You can control uploading only newer files to server and clean cache of uploaded files.
+This additional arguments can be added only to task with specified target.
+
+#### :newer
+Uploads only file which has been changed after previous upload.
+
+#### :clean
+Cleans cache of uploaded files. Uploads all specified files.
+
+#### Examples
+
+on command line
+```
+grunt scp:your_target:newer
+grunt scp:your_target:clean
+```
+
+in gruntfile
+```js
+grunt.task.run('scp:your_target:newer');
+```
+
+WARNING! Next example fails because there is no specified target.
+```
+grunt scp:newer
+```
+
 ## Changelog
 
 **2013-11-14** `0.1.6`
