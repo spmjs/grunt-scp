@@ -12,6 +12,7 @@ var path = require('path');
 var async = require('async');
 var Client = require('scp2').Client;
 var inquirer = require('inquirer');
+var chalk = require('chalk');
 
 module.exports = function(grunt) {
 
@@ -25,22 +26,24 @@ module.exports = function(grunt) {
     var filename, destfile;
     var client = new Client(options);
     var files = this.files;
+    var uploadedFiles = 0;
 
     client.on('connect', function() {
-      grunt.log.writeln('ssh connect ' + options.host);
+      grunt.verbose.writeln('ssh connect ' + options.host);
     });
     client.on('keyboard-interactive', function(name, instructions, instructionsLang, prompts, finish) {
       finish([options.password]);
     });
     client.on('close', function() {
-      grunt.log.writeln('ssh close ' + options.host);
+      grunt.verbose.writeln('ssh close ' + options.host);
+      grunt.log.writeln("\nUploaded " + chalk.cyan(uploadedFiles) + " " + (uploadedFiles > 1 ? "files" : "file") );
       done();
     });
     client.on('mkdir', function(dir) {
-      grunt.log.writeln('mkdir ' + dir);
+      grunt.verbose.writeln('mkdir ' + dir);
     });
     client.on('write', function(o) {
-      grunt.log.writeln('write ' + o.destination);
+      grunt.verbose.writeln('write ' + o.destination).or.write('.');
       if (options.log) {
         options.log(o);
       }
@@ -49,12 +52,13 @@ module.exports = function(grunt) {
       up = up + 1;
       if (up < total) {
         if ((Math.floor(up / 550)) === (up / 550)) {
-          grunt.log.writeln('transfer ' + Math.floor(up / total * 100) + '% data');
+          grunt.verbose.writeln('transfer ' + Math.floor(up / total * 100) + '% data');
         } else if (up === 1) {
-          grunt.log.writeln('transfer 1% data');
+          grunt.verbose.writeln('transfer 1% data');
         }
       } else {
-        grunt.log.writeln('transfer ' + Math.floor(up / total * 100) + '% data');
+        grunt.verbose.writeln('transfer ' + Math.floor(up / total * 100) + '% data');
+        uploadedFiles++;
       }
     });
     client.on('error', function(err) {
