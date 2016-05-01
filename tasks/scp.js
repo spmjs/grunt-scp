@@ -84,7 +84,7 @@ module.exports = function(grunt) {
           filename = filepath;
           filepath = path.join(fileObj.cwd, filepath);
         } else {
-          filename = path.relative(fileObj.orig.cwd, filepath);
+          filename = path.relative(fileObj.orig.cwd || '', filepath);
         }
         destfile = path.join(fileObj.dest, filename);
         client.upload(filepath, destfile, cb);
