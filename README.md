@@ -4,7 +4,7 @@
 
 ## Getting Started
 
-This plugin requires Grunt `~0.4.0`
+This plugin requires Grunt `>=0.4.5`
 
 If you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide, as it explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with that process, you may install this plugin with this command:
 
@@ -66,13 +66,13 @@ The ssh port of the server.
 #### options.username
 Type: `String`
 
-The username of the server.
+The username used to log into the server.
 
 
 #### options.password
 Type: `String`
 
-The password of the user on the remote server.
+The password of the above user on the remote server.
 
 
 #### options.log
@@ -95,6 +95,10 @@ Type: `Function`
 Read more: https://github.com/mscdex/ssh2#connection-methods
 
 ## Changelog
+
+**2018-09-22** `0.1.11`
+
+Add support for grunt@1.0.0
 
 **2013-11-14** `0.1.6`
 
