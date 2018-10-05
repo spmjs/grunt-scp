@@ -12,6 +12,8 @@ var path = require('path');
 var async = require('async');
 var Client = require('scp2').Client;
 var inquirer = require('inquirer');
+var chalk = require('chalk');
+var fs = require('fs');
 
 module.exports = function(grunt) {
 
@@ -21,26 +23,72 @@ module.exports = function(grunt) {
       tryKeyboard: true
     });
 
+    var ARG_NEWER = 'newer';
+    var ARG_CLEAN = 'clean';
+
     var done = this.async();
     var filename, destfile;
     var client = new Client(options);
     var files = this.files;
+    var uploadedFiles = 0;
+    var skippedFiles = 0;
+
+    var cache = new (function (name, args) {
+
+      var newer = args.indexOf(ARG_NEWER) !== -1;
+      var clean = args.indexOf(ARG_CLEAN) !== -1;
+
+      this.dir = path.join(__dirname, '..', '.cache');
+      this.file = path.join(this.dir, (name || 'scp') + '.json');
+      this.data = {};
+
+       this.isUpToDate = function (filepath) {
+        stats = fs.statSync(filepath);
+        if (!clean && newer && (this.data.hasOwnProperty(filepath) && this.data[filepath] === stats.ctime.toJSON())) {
+          return true;
+        }
+        this.data[filepath] = stats.ctime;
+        return false;
+      };
+
+      this.store = function () {
+        if (!clean) {
+          grunt.file.write(this.file, JSON.stringify(this.data));
+        }
+      };
+
+      this.clean = function () {
+        if (grunt.file.exists(this.file)) {
+          grunt.file.delete(this.file);
+        }
+      };
+
+      /** CONSTRUCTOR **/
+      if (clean) {
+        this.clean();
+      }
+      if (!grunt.file.exists(this.dir)) {
+        fs.mkdir(this.dir);
+      }
+      this.data = grunt.file.exists(this.file) ? grunt.file.readJSON(this.file) : {};
+
+    })(this.target, this.args);
 
     client.on('connect', function() {
-      grunt.log.writeln('ssh connect ' + options.host);
+      grunt.verbose.writeln('ssh connect ' + options.host);
     });
     client.on('keyboard-interactive', function(name, instructions, instructionsLang, prompts, finish) {
       finish([options.password]);
     });
     client.on('close', function() {
-      grunt.log.writeln('ssh close ' + options.host);
+      grunt.verbose.writeln('ssh close ' + options.host);
       done();
     });
     client.on('mkdir', function(dir) {
-      grunt.log.writeln('mkdir ' + dir);
+      grunt.verbose.writeln('mkdir ' + dir);
     });
     client.on('write', function(o) {
-      grunt.log.writeln('write ' + o.destination);
+      grunt.verbose.writeln('write ' + o.destination).or.write('.');
       if (options.log) {
         options.log(o);
       }
@@ -49,12 +97,13 @@ module.exports = function(grunt) {
       up = up + 1;
       if (up < total) {
         if ((Math.floor(up / 550)) === (up / 550)) {
-          grunt.log.writeln('transfer ' + Math.floor(up / total * 100) + '% data');
+          grunt.verbose.writeln('transfer ' + Math.floor(up / total * 100) + '% data');
         } else if (up === 1) {
-          grunt.log.writeln('transfer 1% data');
+          grunt.verbose.writeln('transfer 1% data');
         }
       } else {
-        grunt.log.writeln('transfer ' + Math.floor(up / total * 100) + '% data');
+        grunt.verbose.writeln('transfer ' + Math.floor(up / total * 100) + '% data');
+        uploadedFiles++;
       }
     });
     client.on('error', function(err) {
@@ -74,6 +123,10 @@ module.exports = function(grunt) {
         if (err) {
           grunt.log.error('Error ' + err);
         }
+        grunt.log.writeln((uploadedFiles > 0 ? "\n" : "")
+            + "Uploaded " + chalk.cyan(uploadedFiles) + " " + (uploadedFiles !== 1 ? "files" : "file")
+            + " skipped " + chalk.cyan(skippedFiles) + " " + (skippedFiles !== 1 ? "files" : "file"));
+        cache.store();
         client.close();
       });
     }
@@ -86,14 +139,20 @@ module.exports = function(grunt) {
         } else {
           filename = path.relative(fileObj.orig.cwd || '', filepath);
         }
-        destfile = path.join(fileObj.dest, filename);
-        client.upload(filepath, destfile, cb);
+        if (!cache.isUpToDate(filepath)) {     
+          destfile = path.join(fileObj.dest, filename);
+          client.upload(filepath, destfile, cb);
+        } else {
+          grunt.verbose.writeln(filepath + "...skipped");
+          skippedFiles++;
+          cb.call(null);
+        }
       }, function(err) {
         cb(err);
       });
     }
 
-    if (options.password || options.privateKey) {
+    if (options.password || options.privateKey || options.agent) {
       execUploads();
     } else {
       inquirer.prompt([{
